@@ -2,7 +2,7 @@ import {useEffect, useState} from "react";
 import axiosClient from "../axios-client.js";
 import {Link} from "react-router-dom";
 
-export default function Users () {
+export default function Users() {
     const [users, setUsers] = useState([])
     const [loading, setLoading] = useState(false)
 
@@ -18,10 +18,22 @@ export default function Users () {
                 console.log(data)
                 setUsers(data.data)
             }).catch((error) => {
-                setLoading(false)
-                console.log(error)
+            setLoading(false)
+            console.log(error)
         })
     }
+
+    function deleteUser(user) {
+        if (!window.confirm("Do you really want to delete this?")) {
+            return
+        }
+
+        axiosClient.delete('/users/' + user.id).then(() => {
+            // TODO: implement notification here
+            getUsers()
+        })
+    }
+
     return <>
         <div>
             <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
@@ -34,32 +46,42 @@ export default function Users () {
                 <table>
                     <thead>
                     <tr>
-
-                    <th>ID</th>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Create Date</th>
-                    <th>Actions</th>
-
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Create Date</th>
+                        <th>Actions</th>
                     </tr>
                     </thead>
-                    <tbody>
-                    {
-                        users.map(u => (
-                            <tr>
-                                <td>{u.id}</td>
-                                <td>{u.name}</td>
-                                <td>{u.email}</td>
-                                <td>{u.created_at}</td>
-                                <td>
-                                    <Link className={'btn-edit'} to={'/user/'+u.id} >Edit</Link>
 
-                                    <button className={'btn-delete'}>Delete</button>
-                                </td>
-                            </tr>
-                        ))
+                    {
+                        loading && <tbody>
+                        <tr>
+                            <td colSpan='5' className='text-center'>Loading...</td>
+                        </tr>
+                        </tbody>
                     }
-                    </tbody>
+
+                    {
+                        !loading &&
+                        <tbody>
+                        {
+                            users.map(u => (
+                                <tr>
+                                    <td>{u.id}</td>
+                                    <td>{u.name}</td>
+                                    <td>{u.email}</td>
+                                    <td>{u.created_at}</td>
+                                    <td>
+                                        <Link className={'btn-edit'} to={'/user/' + u.id}>Edit</Link>
+
+                                        <button onClick={ev => deleteUser(u)} className={'btn-delete'}>Delete</button>
+                                    </td>
+                                </tr>
+                            ))
+                        }
+                        </tbody>
+                    }
                 </table>
             </div>
         </div>
