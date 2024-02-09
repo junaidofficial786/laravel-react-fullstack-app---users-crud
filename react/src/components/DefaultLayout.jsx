@@ -3,12 +3,14 @@ import {useStateContext} from "../contexts/ContextProvider.jsx";
 import {useEffect} from "react";
 import axiosClient from "../axios-client.js";
 
-export default function DefaultLayout () {
-    const {user, token, setUser, setToken} = useStateContext();
+export default function DefaultLayout() {
+    const {user, token, setUser, setToken, notification} = useStateContext();
 
     //fetch authorized user information using side hook
     useEffect(() => {
-        axiosClient.get('/user').then(({data})=>{setUser(data)})
+        axiosClient.get('/user').then(({data}) => {
+            setUser(data)
+        })
     }, []);
 
     function onLogout(e) {
@@ -18,8 +20,9 @@ export default function DefaultLayout () {
             setToken(null)
         });
     }
-    if(!token) {
-        return <Navigate to='/login' />
+
+    if (!token) {
+        return <Navigate to='/login'/>
     }
 
     return <>
@@ -39,9 +42,15 @@ export default function DefaultLayout () {
                     </div>
                 </header>
                 <main>
-                    <Outlet />
+                    <Outlet/>
                 </main>
             </div>
+
+            {notification &&
+                <div className="notification">
+                    {notification}
+                </div>
+            }
         </div>
     </>
 }
